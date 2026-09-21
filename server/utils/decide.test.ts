@@ -107,3 +107,16 @@ test('signals come back strongest-read-first, with pull strength on top', () => 
   assert.equal(rest.find((s) => s.id === 'closed_door')!.answer, 'No')
   assert.equal(rest.find((s) => s.id === 'closed_door')!.certainty, 1)
 })
+
+test('near coin-flip signals stay out of the rationale', () => {
+  const v = verdict(answers('meet', { proposed_or_accepted_time: 0.95, deferred_with_a_date: 0.56, gone_quiet: 0.51 }))
+  assert.match(v.why, /put a time on the table/)
+  assert.doesNotMatch(v.why, /come back at|gone quiet/)
+  // They are still visible as evidence, just not asserted as fact.
+  assert.ok(v.signals.some((s) => s.id === 'deferred_with_a_date'))
+})
+
+test('three fired signals read as a list, not a chain of ands', () => {
+  const v = verdict(answers('meet', { proposed_or_accepted_time: 0.9, brought_a_decider: 0.9, asked_to_walk_through_live: 0.9 }))
+  assert.match(v.why, /They put a time on the table, they brought someone in to decide or attend, and they asked for something live\./)
+})

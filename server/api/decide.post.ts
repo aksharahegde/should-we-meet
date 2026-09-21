@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
   if (!apiKey) throw createError({ statusCode: 500, statusMessage: 'NUXT_TYPESAFE_API_KEY is not set.' })
   client ??= new TypeSafeClient({ apiKey, timeout: 20_000 })
 
+  const started = Date.now()
   const response = await client.systemOne({
     state: {
       thread: Object.entries(lines).map(([id, text]) => `${id}: ${text}`),
@@ -46,6 +47,8 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...verdict(response.answers as unknown as Answers, lines),
+    // Time in the model, not counting our own round trip — Jev answers every question in one pass.
+    ms: Date.now() - started,
     model: response.model,
     usage: response.usage,
   }

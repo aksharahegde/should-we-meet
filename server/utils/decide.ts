@@ -23,14 +23,17 @@ export const PULL_LEVELS = [
  * One Jev request. The Choice proposes the call, the Nouls are the evidence the
  * rationale is written from, and `evidence_line` picks the line we quote back.
  */
+/** Chip-sized names for the same levels, for the signals table. */
+const PULL_SHORT = ['no client voice', 'curiosity only', 'engaged, no ask', 'explicit pull'] as const
+
 export function buildQuestions(lineIds: string[]) {
   return {
     decision: choice(
       'Should we book a meeting with this client? Judge only what the CLIENT is pulling for, never our own enthusiasm or pipeline stage.',
       {
         meet: 'The client is pulling for time, people, or a decision.',
-        async: 'The client wants information, not a slot. A note, deck, or recording answers them.',
-        wait: 'Interest existed or might return, but they are not pulling now. One nudge, no calendar hold.',
+        async: 'The client is engaged but wants information, not a slot. They replied warmly, asked for a document, or asked nothing at all. A note, deck, or recording answers them.',
+        wait: 'Interest has cooled or been deferred: they went quiet, or pushed us to a later date. Not a fresh reply that simply asks for nothing.',
         drop: 'No real interest, or interest that has ended. Stop proposing meetings.',
       },
     ),
@@ -45,13 +48,16 @@ export function buildQuestions(lineIds: string[]) {
       false: 'No time came from the client',
     }),
     brought_a_decider: noul('Did the client bring another person in to attend or decide?', {
-      true: 'They added someone who is asked to attend or decide',
-      false: 'Nobody new, or a person merely cc’d for visibility',
+      true: 'They said they will bring someone, added someone who is asked to decide or attend, or are taking us to a group that decides, such as a board or a panel',
+      false: 'Nobody new, or a person merely cc’d, forwarded to, or mentioned in passing without being asked to attend or decide',
     }),
-    asked_to_walk_through_live: noul('Did the client ask to walk through something live, or ask us into their process?', {
-      true: 'A demo, a walkthrough, a vendor panel, a board presentation',
-      false: 'Nothing that needs us present',
-    }),
+    asked_to_walk_through_live: noul(
+      'Did the CLIENT ask us to be present live, or ask us into their process? Our own offer of a call never counts.',
+      {
+        true: 'The client asked for a demo, a walkthrough, a vendor panel, or a presentation to their people',
+        false: 'Nothing the client asked for needs us present, or the only such offer came from us',
+      },
+    ),
     asked_for_document_only: noul('Is the client asking for a document rather than a conversation?', {
       true: 'Send the deck, pricing, a one-pager, or a written answer',
       false: 'They asked for something a document cannot give them',
@@ -60,14 +66,20 @@ export function buildQuestions(lineIds: string[]) {
       true: 'A clear no, another vendor chosen, budget frozen, wrong problem, or asked us to stop emailing',
       false: 'The door is open or merely quiet',
     }),
-    deferred_with_a_date: noul('Did the client defer to a named future point in time?', {
-      true: '“Next quarter”, “after the migration”, a month, a date',
-      false: 'No return point was named',
-    }),
-    gone_quiet: noul('Has the client gone quiet since their last useful reply?', {
-      true: 'Their last substantive reply is old, or they stopped answering',
-      false: 'They are replying at a normal pace',
-    }),
+    deferred_with_a_date: noul(
+      'Did the client push us to a LATER point instead of now? A time they offered to meet is the opposite of this: it is not a deferral.',
+      {
+        true: 'They said not now and named when to return: “next quarter”, “after the migration”, “ping me in January”',
+        false: 'They named no return point, or the date they named is a time to meet rather than a time to wait until',
+      },
+    ),
+    gone_quiet: noul(
+      'Has the client gone quiet? Judge only from the timestamps in the thread, the note, and `today`. A short or recent exchange with no sign of a gap is not silence.',
+      {
+        true: 'Their last substantive reply is old, or they stopped answering after we wrote',
+        false: 'They are replying at a normal pace, or the thread is too short or too recent to show a gap',
+      },
+    ),
 
     evidence_line: choice(
       'Which single line best explains what the CLIENT wants from us? Pick a line the client wrote, not one of ours. Pick `none` if the client wrote nothing.',
@@ -175,20 +187,21 @@ export function verdict(answers: Answers, lines: Record<string, string> = {}): V
   signals.unshift({
     id: 'pull_strength',
     label: 'How hard is the client pulling?',
-    answer: `${level} (${PULL_LEVELS[level] ?? 'unclear'})`,
+    answer: `${level} (${PULL_SHORT[level] ?? 'unclear'})`,
     certainty: answers.pull_strength.confidence ?? 0,
   })
 
-  const fired = Object.keys(PHRASE).filter((id) => nl(answers, id) > 0.6).map((id) => PHRASE[id]!)
+  // 0.7, not the 0.6 the rules use: a near coin-flip belongs in the table, never in the sentence.
+  const fired = Object.keys(PHRASE).filter((id) => nl(answers, id) > 0.7).map((id) => PHRASE[id]!)
 
   const confidence = !replied ? 'thin evidence' : conf >= 0.8 ? 'clear' : conf >= 0.55 ? 'leaning' : 'thin evidence'
   const quote = lines[answers.evidence_line.choice] ?? null
 
   const why = [
     quote && `They said: “${quote}”.`,
-    fired.length ? `${cap1(fired[0]!)}${fired.length > 1 ? `, and ${fired.slice(1).join(', and ')}` : ''}.` : null,
+    fired.length ? `${cap1(list(fired))}.` : null,
     guardrails.length ? `We are not booking because ${guardrails[guardrails.length - 1]}.` : null,
-    !replied ? 'No client message in this paste — only our outreach.' : null,
+    !replied ? 'No client message in this paste, only our outreach.' : null,
   ]
     .filter(Boolean)
     .join(' ')
@@ -197,3 +210,4 @@ export function verdict(answers: Answers, lines: Record<string, string> = {}): V
 }
 
 const cap1 = (s: string) => s[0]!.toUpperCase() + s.slice(1)
+const list = (xs: string[]) => (xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')}, and ${xs.at(-1)}`)

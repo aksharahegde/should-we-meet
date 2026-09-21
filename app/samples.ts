@@ -4,9 +4,9 @@ export type Sample = { name: string; expected: string; thread: string; note?: st
 export const SAMPLES: Sample[] = [
   {
     name: 'They offered two slots',
-    expected: 'Meet — a time on the table and a decider brought in',
+    expected: 'Meet: a time on the table and a decider brought in',
     thread: `Client A  Tue 10:02
-Thanks for the walkthrough doc — this answers most of what we were stuck on.
+Thanks for the walkthrough doc, this answers most of what we were stuck on.
 
 Us  Tue 10:40
 Glad it landed. Anything you want to dig into?
@@ -17,7 +17,7 @@ on our side. I'll bring our migration budget owner.`,
   },
   {
     name: 'Can you present to the board',
-    expected: 'Meet — asked into their process, live, with a decision attached',
+    expected: 'Meet: asked into their process, live, with a decision attached',
     thread: `Client B  Mon 16:20
 Update: we took your proposal to the exec review and it cleared the first gate.
 
@@ -27,9 +27,9 @@ section? 20 minutes, and they'll ask about the SOC2 timeline.`,
   },
   {
     name: 'Pricing only',
-    expected: 'Async — rule 2, a document is not a meeting',
+    expected: 'Async: rule 2, a document is not a meeting',
     thread: `Us  Wed 09:05
-Following up on our conversation — happy to set up a call to walk through
+Following up on our conversation. Happy to set up a call to walk through
 how the tiers work.
 
 Client C  Wed 14:31
@@ -38,7 +38,7 @@ comparison against your Growth tier? I'll circulate internally.`,
   },
   {
     name: '“Looks great!” and nothing else',
-    expected: 'Async — warmth with no time, no person, no ask',
+    expected: 'Async: warmth with no time, no person, no ask',
     thread: `Us  Thu 08:12
 Sent over the case study from the last rollout. Worth a quick sync?
 
@@ -47,7 +47,7 @@ Looks great!`,
   },
   {
     name: 'Champion excited, buyer silent',
-    expected: 'Async or Wait — rule 3, a cc is not an attendee',
+    expected: 'Async or Wait: rule 3, a cc is not an attendee',
     thread: `Client E  Fri 13:10
 Personally I love this. It solves the reconciliation mess we've been
 living with for two years.
@@ -63,34 +63,34 @@ Thanks. Happy to find time this week if useful.
   },
   {
     name: 'Regroup next quarter',
-    expected: 'Wait — a date exists, so not a Drop yet',
+    expected: 'Wait: a date exists, so not a Drop yet',
     note: "it's been 3 weeks",
     thread: `Client F  Tue 11:48
 This is good work and the team liked the pilot numbers.
 
 Client F  Tue 11:49
 That said, budget is locked until the new fiscal year. Let's regroup in
-early Q1 — ping me the first week of January and we'll pick it back up.`,
+early Q1. Ping me the first week of January and we'll pick it back up.`,
   },
   {
     name: 'Only our outbound',
-    expected: 'Wait — edge case 1, never Meet, thin evidence',
+    expected: 'Wait: edge case 1, never Meet, thin evidence',
     thread: `Us  Mon 09:15
-Hi — following up on the intro from last week. Would love 20 minutes to
+Hi, following up on the intro from last week. Would love 20 minutes to
 understand how your team handles vendor onboarding today.
 
 Us  Thu 09:02
 Bumping this in case it got buried. Happy to work around your calendar.
 
 Us  (next Wed) 08:50
-Last note from me — still keen to find time if there's interest.`,
+Last note from me, still keen to find time if there's interest.`,
   },
   {
     name: 'They went with someone else',
-    expected: 'Drop — interest ended',
+    expected: 'Drop: interest ended',
     thread: `Client G  Wed 15:40
 Wanted to close the loop rather than leave you hanging. We've signed with
-another vendor for this workstream — their existing integration with our ERP
+another vendor for this workstream. Their existing integration with our ERP
 made the internal case easier.
 
 Client G  Wed 15:41
@@ -106,9 +106,9 @@ taken off this list. Please stop emailing me.`,
   },
   {
     name: 'Ceremonial invite already on the calendar',
-    expected: 'Async or Wait — rule 6, the call may contradict the calendar',
+    expected: 'Async or Wait: rule 6, the call may contradict the calendar',
     invitePending: true,
-    thread: `Invite: "Intro / explore synergies" — Thu 3:00pm, 30 min
+    thread: `Invite: "Intro / explore synergies", Thu 3:00pm, 30 min
 Organizer: Client J
 Attendees: us, Client J
 

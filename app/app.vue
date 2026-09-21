@@ -16,7 +16,7 @@ const note = ref('')
 const invitePending = ref(false)
 
 const sample = ref('')
-const result = ref<(Verdict & { model: string }) | null>(null)
+const result = ref<(Verdict & { model: string; ms: number }) | null>(null)
 const pending = ref(false)
 const error = ref('')
 const showAll = ref(false)
@@ -121,7 +121,7 @@ const NEXT_STEP: Record<Decision, string> = {
     <section class="hero">
       <div>
         <h1>Let the thread decide.</h1>
-        <p>Before you book time, know if they actually want a meeting — or if we should send something, wait, or stop.</p>
+        <p>Before you book time, know if they actually want a meeting, or if we should send something, wait, or stop.</p>
       </div>
       <div class="mono-notes">
         <div>PASTE A THREAD.</div>
@@ -173,7 +173,7 @@ const NEXT_STEP: Record<Decision, string> = {
       <section class="card pane">
         <div class="pane-head">
           <span class="eyebrow">Recommendation</span>
-          <span v-if="result" class="model">Model: {{ result.model }}</span>
+          <span v-if="result" class="model"><b>{{ result.ms }} ms</b> · Model: {{ result.model }}</span>
         </div>
 
         <p v-if="!result" class="empty">Paste a thread and read the room. The call, the evidence behind it, and one next step land here.</p>
@@ -203,8 +203,10 @@ const NEXT_STEP: Record<Decision, string> = {
           <div class="eyebrow signals-head">Key signals</div>
           <ul class="signals">
             <li v-for="s in shown" :key="s.id">
-              <span class="q">{{ s.label }}</span>
-              <span class="a" :class="{ yes: s.answer === 'Yes', no: s.answer === 'No' }">{{ s.answer }}</span>
+              <span class="read">
+                <span class="q">{{ s.label }}</span>
+                <span class="a" :class="{ yes: s.answer === 'Yes', no: s.answer === 'No' }">{{ s.answer }}</span>
+              </span>
               <span class="n">{{ Math.round(s.certainty * 100) }}%</span>
               <span class="bar"><i :class="{ weak: s.certainty < 0.6 }" :style="{ width: `${Math.round(s.certainty * 100)}%` }" /></span>
             </li>
@@ -214,7 +216,7 @@ const NEXT_STEP: Record<Decision, string> = {
           </button>
 
           <div v-if="override" class="override-strip">
-            Overridden from <b>{{ result.decision }}</b> — “{{ override.reason }}”
+            Overridden from <b>{{ result.decision }}</b>: “{{ override.reason }}”
             <button @click="clearOverride">undo</button>
           </div>
 
@@ -282,6 +284,7 @@ h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.05; letter-spacing: -0.03
 .pane-head { display: flex; justify-content: space-between; align-items: center; }
 .eyebrow { font: 600 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
 .model { font-size: 12px; color: var(--dim); }
+.model b { color: var(--green); font-weight: 500; font-variant-numeric: tabular-nums; }
 .samples { background: #0b0b0d; color: var(--dim); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font: inherit; font-size: 12.5px; max-width: 58%; }
 .samples:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
@@ -331,9 +334,11 @@ h2.drop { color: #fb7185; }
 
 .signals-head { margin-top: 6px; }
 .signals { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-.signals li { display: grid; grid-template-columns: 1fr auto 44px 150px; gap: 12px; align-items: center; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.signals li { display: grid; grid-template-columns: minmax(0, 1fr) 44px 150px; gap: 12px; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+/* Question first, the read underneath it: a long rubric label then wraps on its own terms. */
+.read { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-width: 0; }
 .q { color: #c9c9d1; }
-.a { padding: 3px 11px; border-radius: 999px; background: #1b1b20; color: var(--dim); font-size: 12.5px; white-space: nowrap; }
+.a { padding: 3px 11px; border-radius: 999px; background: #1b1b20; color: var(--dim); font-size: 12.5px; }
 .a.yes { background: rgba(74, 222, 128, 0.15); color: var(--green); }
 .n { color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
 .bar { background: #1b1b20; border-radius: 999px; height: 7px; overflow: hidden; }
@@ -362,7 +367,7 @@ h2.drop { color: #fb7185; }
   .cols, .verdict { grid-template-columns: 1fr; }
   .picks { grid-template-columns: repeat(2, 1fr); }
   .mono-notes { text-align: left; }
-  .signals li { grid-template-columns: 1fr auto 44px; }
+  .signals li { grid-template-columns: minmax(0, 1fr) 44px; }
   .signals .bar { display: none; }
 }
 </style>

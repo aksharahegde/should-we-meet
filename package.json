@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
-    "test": "node --test --experimental-strip-types server/utils/*.test.ts"
+    "test": "node --test --experimental-strip-types server/utils/*.test.ts",
+    "bench": "node --experimental-strip-types scripts/bench.ts"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "^0.6.0",
