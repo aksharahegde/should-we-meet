@@ -1,0 +1,14 @@
+{
+  "name": "should-we-meet",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "test": "node --test --experimental-strip-types server/utils/*.test.ts"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0",
+    "nuxt": "^4.5.2"
+  }
+}
